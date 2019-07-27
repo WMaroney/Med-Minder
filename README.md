@@ -4,7 +4,7 @@ An medication reminding application that uses your device camera to scan a Rx La
 - Python3
 	- Tesseract
 	- pytesseract
-  - OpenCV
+	- OpenCV
 	- Flask
 		-Flask Forms
 		-Flask WTF
