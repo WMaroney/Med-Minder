@@ -19,7 +19,7 @@ This project uses the device camera to scan Rx label and automatically populate 
 - [ ] Able to login
 - [x] Able to open device camera and obtain ".jpg" of label
 - [x] Able to scan image with text and output text to ".txt" file
-- [ ] and add rx automatic
+- [ ] Able to add rx automatic
 - [ ] Able to add rx manual
 - [ ] Able to remove rx
 - [ ] Display the calendar
