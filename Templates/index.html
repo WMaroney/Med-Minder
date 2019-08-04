@@ -1,22 +1,10 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<meta charset="UTF-8">
-	<title>Login Form</title>
-</head>
-<body>
-	<div class= "loginbox">
-		<h1>Welcome to Med-Minder</h1>
-		<form>
-		<p>Username:</p>
-		<input type= "text" name= "" placeholder= "Enter Email">
-		<p>Password:</p>
-		<input type= "password" name= "" placeholder= "Enter Password">
-		<br>
-		<br>
-		<input type= "submit" name= "" value= "Login">	<input type= "submit" name= "" value= "Sign-Up">
-		</form>
-	</div>
 
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Flask login{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>Hello, {% if current_user.is_authenticated %}{{ current_user.id }}{% else %}Stranger{% endif %}!</h1>
+</div>
+{% endblock %}
