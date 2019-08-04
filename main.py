@@ -142,27 +142,6 @@ def checkUUID(ID, selectList):
 		return invite_db.get(ID)
 	else:
 		return None
-
-def inviteEmail(email, role):
-	fromaddr = "medmindercsc400@gmail.com"
-	toaddr = email
-	
-	#Generate hex UUID which is unique and save this to the invite_db
-	x = uuid.uuid1()
-	invite_db[str(x)] = [email, role]
-	
-	body = "We are pleased to invite you to MedMinder! Please follow this link to get started! <br><a href='http://127.0.0.1:5000/emaillink/" + str(x) + "'>Link</a>"
-	msg = MIMEText(body, 'html')
-	msg['From'] = fromaddr
-	msg['To'] = toaddr
-	msg['Subject'] = "internSearch " + role.capitalize() + " Invite"
-	server = smtplib.SMTP('smtp.gmail.com:587')
-	server.starttls()
-	server.login("medmindercsc400@gmail.com", "Atmose@123")
-	text = msg.as_string()
-	server.sendmail(fromaddr,[toaddr],text)
-	server.quit()
-	
 	
 def verifyEmail(email, password, role):
 	fromaddr = "medmindercsc400@gmail.om"
@@ -176,7 +155,7 @@ def verifyEmail(email, password, role):
 	msg = MIMEText(body, 'html')
 	msg['From'] = fromaddr
 	msg['To'] = toaddr
-	msg['Subject'] = "internSearch Verify Email"
+	msg['Subject'] = "Med-Minder Verify Email"
 	server = smtplib.SMTP('smtp.gmail.com:587')
 	server.starttls()
 	server.login("medmindercsc400@gmail.com", "Atmose@123")
