@@ -61,7 +61,7 @@ class User():
 	def __init__(self, id, username, setup, password):
 		self.id = id
 		self.name = username
-		self.pass = password
+		self.password = password
 		self.ident = ident
 		self.profileSetup = int(setup)
 
