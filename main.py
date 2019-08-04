@@ -1,15 +1,23 @@
 # Imports
 from flask import render_template, flash, redirect, url_for, request, Flask, send_file
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
-from wtforms import Form, StringField, TextField, PasswordField, validators, SubmitField, TextAreaField, RadioField, IntegerField, DateTimeField, FileField, SelectField
+from werkzeug.urls import url_parse
+from werkzeug.security import check_password_hash, generate_password_hash
+from wtforms import Form, TextField, PasswordField, validators, SubmitField, TextAreaField, RadioField, IntegerField, FloatField, FileField, SelectField
 from wtforms.fields.html5 import DateField
 from wtforms.validators import ValidationError, DataRequired, EqualTo
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_wtf import FlaskForm
 import sys
-import pymysql
+import pymysql #used to connect SQL DB to python and run queries
 import sqlite3
+import getpass
+from email.message import EmailMessage
+import smtplib
+from email.mime.text import MIMEText
+import uuid
+from werkzeug.utils import secure_filename
 import os
 import datetime
 import re
@@ -57,14 +65,16 @@ class Remove(FlaskForm):
 
 ## User class
 
-class User():
-	def __init__(self, id, username, setup, password):
-		self.id = id
-		self.name = username
-		self.password = password
-		self.ident = ident
+class User(UserMixin):
+	def __init__(self, ident, username, name, email, setup, password, role):
+		self.id = username.replace("'", "")
+		# hash the password and output it to stderr
+		self.pass_hash = password
+		self.role = role
+		self.name = name
+		self.email = email
 		self.profileSetup = int(setup)
-
+		self.ident = ident
 
 class Medication():
 	def __init__(self, id, addedDate, dosage, freq, refill):
@@ -102,11 +112,84 @@ def allowed_file(filename):
 def load_users():
 	c.execute("SELECT * from users")
 	users = c.fetchall()
+	for user in users:
+		print(users)
+	
+def load_meds():
+	c.execute("SELECT * from user_meds")
+	meds = c.fetchall()
+	for med in meds:
+		print(meds)
 
 # Init User and Medication Databases
 
 user_db = {}
 med_db = {}
+
+load_users()
+load_meds()
+
+#Dictionary of invites sent to users
+invite_db = {}
+
+#Dictionary of verifies sent to users
+verify_db = {}
+
+def checkUUID(ID, selectList):
+	if selectList == "verify":
+		return verify_db.get(ID)
+	elif selectList == "invite":
+		return invite_db.get(ID)
+	else:
+		return None
+
+def inviteEmail(email, role):
+	fromaddr = "medmindercsc400@gmail.com"
+	toaddr = email
+	
+	#Generate hex UUID which is unique and save this to the invite_db
+	x = uuid.uuid1()
+	invite_db[str(x)] = [email, role]
+	
+	body = "We are pleased to invite you to internSearch! Please follow this link to get started! <br><a href='http://127.0.0.1:5000/emaillink/" + str(x) + "'>Link</a>"
+	msg = MIMEText(body, 'html')
+	msg['From'] = fromaddr
+	msg['To'] = toaddr
+	msg['Subject'] = "internSearch " + role.capitalize() + " Invite"
+	server = smtplib.SMTP('smtp.gmail.com:587')
+	server.starttls()
+	server.login("medmindercsc400@gmail.com", "Atmose@123")
+	text = msg.as_string()
+	server.sendmail(fromaddr,[toaddr],text)
+	server.quit()
+	
+	
+def verifyEmail(email, password, role):
+	fromaddr = "medmindercsc400@gmail.om"
+	toaddr = email
+	
+	#Generate hex UUID which is unique and save this to the invite_db
+	x = uuid.uuid1()
+	verify_db[str(x)] = [email, password, role]
+	
+	body = "Please click the link below to verify your account! <br><a href='http://127.0.0.1:5000/verify/" + str(x) + "'>Link</a>"
+	msg = MIMEText(body, 'html')
+	msg['From'] = fromaddr
+	msg['To'] = toaddr
+	msg['Subject'] = "internSearch Verify Email"
+	server = smtplib.SMTP('smtp.gmail.com:587')
+	server.starttls()
+	server.login("medmindercsc400@gmail.com", "Atmose@123")
+	text = msg.as_string()
+	server.sendmail(fromaddr,[toaddr],text)
+	server.quit()
+	
+def profileIsSetup():
+	if current_user.profileSetup == 1:
+		return True
+	else:
+		return False
+	
 
 
 # Login manager uses this function to manage user sessions.
@@ -126,6 +209,49 @@ def index():
 	l = c.fetchall()
 	db.close()
 	return render_tamplate ('index.html', data=l)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+	if current_user.is_authenticated:
+		return redirect(url_for('index'))
+	# display the login form
+	form = LoginForm()
+	if form.validate_on_submit():
+		user = user_db[form.username.data]
+		# validate user
+		valid_password = check_password_hash(user.pass_hash, form.password.data)
+		if user is None or not valid_password:
+			print('Invalid username or password', file=sys.stderr)
+			redirect(url_for('index'))
+		else:
+			print(user)
+			login_user(user)
+			print(user.is_authenticated)
+			flash('Login Successful', category='success')
+			return redirect(url_for('index'))
+
+	return render_template('login.html', title='Sign In', form=form)
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+	if current_user.is_authenticated:
+		return redirect(url_for('index'))
+	# display the login form
+	form = SignupForm()
+	if form.validate_on_submit():
+		user = form.username.data
+		exists = user_db.get(user)
+		# validate user
+		if exists is None:
+			user_pass = generate_password_hash(form.password.data)
+			verifyEmail(user, user_pass, "student")
+			flash('Please check your email to verify your account', category='info')
+			return redirect(url_for('index'))
+		else:
+			flash('Invalid User Name or Password', category='error')
+			return redirect(url_for('index'))
+
+	return render_template('signUP.html', title='Sign Up', form=form)
 
 
 
