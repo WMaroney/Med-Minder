@@ -117,6 +117,22 @@ def allowed_file(filename):
 user_db = {}
 med_db = {}	
 
+
+#Dictionary of invites sent to users
+invite_db = {}
+
+#Dictionary of verifies sent to users
+verify_db = {}
+
+def checkUUID(ID, selectList):
+	if selectList == "verify":
+		return verify_db.get(ID)
+	elif selectList == "invite":
+		return invite_db.get(ID)
+	else:
+		return None
+	
+	
 # Verification email on account creation	
 	
 def verifyEmail(email, password, role):
