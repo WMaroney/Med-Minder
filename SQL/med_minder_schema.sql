@@ -9,7 +9,7 @@ create table users (
 drop table if exists usermeds;
 create table usermeds (
 	med_id integer primary key auto_increment,
-	user_id integer foreign key not null,
+	user_id integer not null,
 	med_name varchar(255) not null,
 	med_freq varchar(255) not null,
 	med_dose varchar(255) not null,
