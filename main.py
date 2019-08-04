@@ -161,7 +161,7 @@ def load_user(id):
 
 
 def viewrx():
-	db=pymysql.connect(host='35.237.157.161', user='root', password='123', db='med_minder')
+	db = pymysql.connect(host='35.229.79.169', user='root', password='password', db='med_minder')
 	c = db.cursor()
 	c.execute('SELECT * from medications')
 	l = c.fetchall()
@@ -174,9 +174,7 @@ def viewrx():
 def addrx():
 	form = Add()
 	if form.validate_on_submit():
-		city = form.city.data
-		population = form.pop.data
-		db=pymysql.connect(host='35.237.157.161', user='root', password='123', db='med_minder')
+		db = pymysql.connect(host='35.229.79.169', user='root', password='password', db='med_minder')
 		c = db.cursor()
 		sql = 'INSERT INTO medicaton(name, dosage, refill, frequency) VALUES'\
 		"(%s, %s, %s, %s)"
@@ -191,8 +189,7 @@ def addrx():
 def removerx():
 	form = Remove()
 	if form.validate_on_submit():
-		city = form.city.data
-		db=pymysql.connect(host='35.237.157.161', user='root', password='123', db='med_minder')
+		db = pymysql.connect(host='35.229.79.169', user='root', password='password', db='med_minder')
 		c = db.cursor()
 		sql = "DELETE FROM medication WHERE name = '"+medication+"'"
 		c.execute (sql)
@@ -212,4 +209,4 @@ def about():
 		
 		
 if __name__ == '__main__':
-	app.run(host='0.0.0.0', port=8080, debug=True)	
+	app.run(host='0.0.0.0', port=8080, debug=True)
