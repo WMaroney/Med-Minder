@@ -66,8 +66,8 @@ class Remove(FlaskForm):
 	
 	
 	
-## User class, subclassed from UserMixin for convenience.  UserMixin
-## provides attributes to manage user (e.g. authenticated). 	
+## User class, subclassed from UserMixin for convenience
+## UserMixin provides attributes to manage user (authentication)	
 	
 	
 class User(UserMixin):
@@ -92,7 +92,7 @@ class Medication():
 	
 app = Flask(__name__)
 
-# app.config['SECRET_KEY'] = 'mf0439mf028nf4024wevwve'. CHECK THIS OUT FROM GCP
+# app.config['SECRET_KEY'] = ''. CHECK THIS OUT FROM GCP
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 login_manager = LoginManager(app)
@@ -186,8 +186,8 @@ def index():
 
 	
 	
-@app.route('/add_manual', methods=['GET', 'POST'])
-def addrx():
+@app.route('/addrxman', methods=['GET', 'POST'])
+def addrxman():
 	form = Add()
 	if form.validate_on_submit():
 		db = pymysql.connect(host='35.229.79.169', user='root', password='password', db='med_minder')
@@ -223,3 +223,6 @@ def logout():
 def about():
 		return render_template('about.html', title='About')
 	
+if __name__ == '__main__':
+	app.run(host='0.0.0.0', port=8080, debug=True)
+
