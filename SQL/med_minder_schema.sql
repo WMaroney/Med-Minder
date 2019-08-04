@@ -8,7 +8,6 @@ create table users (
 
 drop table if exists usermeds;
 create table usermeds (
-	user_id integer auto_increment,
 	med_id integer primary key auto_increment,
 	med_name varchar(255) not null,
 	med_freq varchar(255) not null,
