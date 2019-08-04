@@ -115,7 +115,7 @@ def load_users():
 		print(user_db.get(str(user[2].replace("'", ""))).id + ": Created as User")
 	
 def load_meds():
-	c.execute("SELECT * from user_meds")
+	c.execute("SELECT * from usermeds")
 	meds = c.fetchall()
 	for med in meds:
 		med_db[str(app[0])] = Medication(med[0],med[1],med[2],med[3],med[4],med[5],med[6])
