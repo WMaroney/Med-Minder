@@ -1,8 +1,6 @@
 # Imports
 from flask import render_template, flash, redirect, url_for, request, Flask, send_file
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
-from werkzeug.urls import url_parse
-from werkzeug.security import check_password_hash, generate_password_hash
 from wtforms import Form, StringField, TextField, PasswordField, validators, SubmitField, TextAreaField, RadioField, IntegerField, DateTimeField, FileField, SelectField
 from wtforms.fields.html5 import DateField
 from wtforms.validators import ValidationError, DataRequired, EqualTo
@@ -12,12 +10,6 @@ from flask_wtf import FlaskForm
 import sys
 import pymysql
 import sqlite3
-import getpass
-from email.message import EmailMessage
-import smtplib
-from email.mime.text import MIMEText
-import uuid
-from werkzeug.utils import secure_filename
 import os
 import datetime
 import re
@@ -25,7 +17,7 @@ import re
 db = pymysql.connect(host='35.229.79.169', user='root', password='password', db='med_minder')
 c = db.cursor()
 
-## FLASK FORMS subclassed from FlaskForm##
+## FLASK FORMS subclassed from FlaskForm
 
 
 class LoginForm(FlaskForm):
@@ -63,18 +55,13 @@ class Remove(FlaskForm):
 	medication = StringField('Medication', validators=[DataRequired()])
 	submit =  SubmitField('Remove Prescription')
 
+## User class
 
-
-
-## User class, subclassed from UserMixin for convenience
-## UserMixin provides attributes to manage user (authentication)
-
-
-class User(UserMixin):
-	def __init__(self, ident, username, setup, password):
-		self.id = username.replace("'", "")
-		# hash the password and output it to stderr
-		self.pass_hash = password
+class User():
+	def __init__(self, id, username, setup, password):
+		self.id = id
+		self.name = username
+		self.pass = password
 		self.ident = ident
 		self.profileSetup = int(setup)
 
@@ -112,56 +99,14 @@ def allowed_file(filename):
 	return '.' in filename and \
 		   filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
+def load_users():
+	c.execute("SELECT * from users")
+	users = c.fetchall()
 
 # Init User and Medication Databases
 
 user_db = {}
 med_db = {}
-
-#Dictionary of invites sent to users
-invite_db = {}
-
-#Dictionary of verifies sent to users
-verify_db = {}
-
-def checkUUID(ID, selectList):
-	if selectList == "verify":
-		return verify_db.get(ID)
-	elif selectList == "invite":
-		return invite_db.get(ID)
-	else:
-		return None
-
-
-# Verification email on account creation
-
-def verifyEmail(email, password):
-	fromaddr = "medmindercsc400@gmail.com"
-	toaddr = email
-
-	#Generate hex UUID which is unique and save this to the invite_db
-	x = uuid.uuid1()
-	verify_db[str(x)] = [email, password]
-
-	body = "Please click the link below to verify your account! <br><a href='http://127.0.0.1:5000/verify/" + str(x) + "'>Link</a>"
-	msg = MIMEText(body, 'html')
-	msg['From'] = fromaddr
-	msg['To'] = toaddr
-	msg['Subject'] = "Med_Minder Verify Email"
-	server = smtplib.SMTP('smtp.gmail.com:587')
-	server.starttls()
-	server.login("medmindercsc400@gmail.com", "Atmose@123")
-	text = msg.as_string()
-	server.sendmail(fromaddr,[toaddr],text)
-	server.quit()
-
-#Check if current user has created their profile!
-def profileIsSetup():
-	if current_user.profileSetup == 1:
-		return True
-	else:
-		return False
-
 
 
 # Login manager uses this function to manage user sessions.
@@ -186,7 +131,7 @@ def index():
 
 @app.route('/addrxman', methods=['GET', 'POST'])
 def addrxman():
-	form = Add()
+	form = AddManual()
 	if form.validate_on_submit():
 		db = pymysql.connect(host='35.229.79.169', user='root', password='password', db='med_minder')
 		c = db.cursor()
