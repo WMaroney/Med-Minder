@@ -99,15 +99,13 @@ images_folder = 'documents/rx_images/'
 translation_folder = 'documents/text_translations/'
 allowed_extensions = set(['txt', 'jpg'])
 
-
-
-# Login manager uses this function to manage user sessions.
-# Function does a lookup by id and returns the User object if
-# it exists, None otherwise.
+# Code for allowed file extensions
 
 def allowed_file(filename):
 	return '.' in filename and \
 		   filename.rsplit('.', 1)[1].lower() in allowed_extensions
+
+# Code to load users and meds as functions to load later
 
 def load_users():
 	c.execute("SELECT * from users")
@@ -153,7 +151,7 @@ def inviteEmail(email, role):
 	x = uuid.uuid1()
 	invite_db[str(x)] = [email, role]
 	
-	body = "We are pleased to invite you to internSearch! Please follow this link to get started! <br><a href='http://127.0.0.1:5000/emaillink/" + str(x) + "'>Link</a>"
+	body = "We are pleased to invite you to MedMinder! Please follow this link to get started! <br><a href='http://127.0.0.1:5000/emaillink/" + str(x) + "'>Link</a>"
 	msg = MIMEText(body, 'html')
 	msg['From'] = fromaddr
 	msg['To'] = toaddr
