@@ -160,7 +160,7 @@ def load_user(id):
 @login_required
 
 
-def viewrx():
+def index():
 	db = pymysql.connect(host='35.229.79.169', user='root', password='password', db='med_minder')
 	c = db.cursor()
 	c.execute('SELECT * from medications')
