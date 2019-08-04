@@ -92,7 +92,8 @@ class Medication():
 	
 app = Flask(__name__)
 
-# app.config['SECRET_KEY'] = ''. CHECK THIS OUT FROM GCP
+skey = os.urandom(12)
+app.config['SECRET_KEY'] = skey
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 login_manager = LoginManager(app)
