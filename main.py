@@ -22,8 +22,8 @@ import os
 import datetime
 import re
 
-db = pymysql.connect(host='35.229.79.169', user='root', password='password', db='med_minder')
-c = db.cursor()
+#db = pymysql.connect(host='35.229.79.169', user='root', password='password', db='med_minder')
+#c = db.cursor()
 
 ## FLASK FORMS subclassed from FlaskForm##
 
