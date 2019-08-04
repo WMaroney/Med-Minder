@@ -15,7 +15,7 @@ create table usermeds (
 	med_dose varchar(255) not null,
 	dr_name varchar(255) not null,
 	refill_date varchar(255) not null,
-	num_refills integer not null,
+	num_refills integer not null
 );
 ALTER TABLE usermeds ADD FOREIGN KEY (user_id) references users(user_id);
 SET foreign_key_checks = 1;
