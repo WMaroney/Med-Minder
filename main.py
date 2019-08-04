@@ -113,13 +113,15 @@ def load_users():
 	c.execute("SELECT * from users")
 	users = c.fetchall()
 	for user in users:
-		print(users)
+		user_db["" + str(user[2])] = User(user[0],"'" + user[2] + "'",user[1],user[2],user[3],user[4],user[5],user[6],user[7],user[8],user[9],user[10], 'user')
+		print(user_db.get(str(user[2].replace("'", ""))).id + ": Created as User")
 	
 def load_meds():
 	c.execute("SELECT * from user_meds")
 	meds = c.fetchall()
 	for med in meds:
-		print(meds)
+		med_db[str(app[0])] = Medication(med[0],med[1],med[2],med[3],med[4],med[5],med[6])
+		print(str(med_db.get(str(med[0])).id) + ": Created as Medication")
 
 # Init User and Medication Databases
 
