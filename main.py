@@ -10,7 +10,7 @@ from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_wtf import FlaskForm
 import sys
-import pymysql 
+import pymysql
 import sqlite3
 import getpass
 from email.message import EmailMessage
@@ -32,7 +32,7 @@ class LoginForm(FlaskForm):
 	username = TextField('Username', validators=[DataRequired()])
 	password = PasswordField('Password', validators=[DataRequired()])
 	submit = SubmitField('Sign In')
-	
+
 class SignupForm(FlaskForm):
 	username = TextField('Username', validators=[DataRequired()])
 	#Add built in Validator
@@ -43,8 +43,8 @@ class SignupForm(FlaskForm):
 class ConfirmMedicationAdd(FlaskForm):
 	submit = SubmitField('Confirm')
 
-# Add Rx Manual Form	
-class Add_Manual(FlaskForm):
+# Add Rx Manual Form
+class AddManual(FlaskForm):
 	medication = StringField('Medication', validators=[DataRequired()])
 	dosage = IntegerField('Dosage', validators=[DataRequired()])
 	freq = StringField('Frequency', validators=[DataRequired()])
@@ -53,23 +53,23 @@ class Add_Manual(FlaskForm):
 	doc = StringField('Physician', validators=[DataRequired()])
 	pharm = StringField('Pharmacy', validators=[DataRequired()])
 	submit =  SubmitField('Submit: ')
-	
-class Add_Scan(FlaskForm):
+
+class AddScan(FlaskForm):
 	# Initiate OCR to get text file
 	submit =  SubmitField('Add Prescription via Camera')
 
-# Remove Rx Form	
+# Remove Rx Form
 class Remove(FlaskForm):
 	medication = StringField('Medication', validators=[DataRequired()])
 	submit =  SubmitField('Remove Prescription')
-	
-	
-	
-	
+
+
+
+
 ## User class, subclassed from UserMixin for convenience
-## UserMixin provides attributes to manage user (authentication)	
-	
-	
+## UserMixin provides attributes to manage user (authentication)
+
+
 class User(UserMixin):
 	def __init__(self, ident, username, setup, password):
 		self.id = username.replace("'", "")
@@ -77,8 +77,8 @@ class User(UserMixin):
 		self.pass_hash = password
 		self.ident = ident
 		self.profileSetup = int(setup)
-		
-		
+
+
 class Medication():
 	def __init__(self, id, addedDate, dosage, freq, refill):
 		self.id = id
@@ -89,7 +89,7 @@ class Medication():
 
 
 ## Creating the Flask app object and login manager
-	
+
 app = Flask(__name__)
 
 skey = os.urandom(12)
@@ -114,10 +114,9 @@ def allowed_file(filename):
 
 
 # Init User and Medication Databases
-	
-user_db = {}
-med_db = {}	
 
+user_db = {}
+med_db = {}
 
 #Dictionary of invites sent to users
 invite_db = {}
@@ -132,18 +131,18 @@ def checkUUID(ID, selectList):
 		return invite_db.get(ID)
 	else:
 		return None
-	
-	
-# Verification email on account creation	
-	
-def verifyEmail(email, password, role):
+
+
+# Verification email on account creation
+
+def verifyEmail(email, password):
 	fromaddr = "medmindercsc400@gmail.com"
 	toaddr = email
-	
+
 	#Generate hex UUID which is unique and save this to the invite_db
 	x = uuid.uuid1()
-	verify_db[str(x)] = [email, password, role]
-	
+	verify_db[str(x)] = [email, password]
+
 	body = "Please click the link below to verify your account! <br><a href='http://127.0.0.1:5000/verify/" + str(x) + "'>Link</a>"
 	msg = MIMEText(body, 'html')
 	msg['From'] = fromaddr
@@ -155,7 +154,7 @@ def verifyEmail(email, password, role):
 	text = msg.as_string()
 	server.sendmail(fromaddr,[toaddr],text)
 	server.quit()
-	
+
 #Check if current user has created their profile!
 def profileIsSetup():
 	if current_user.profileSetup == 1:
@@ -163,8 +162,8 @@ def profileIsSetup():
 	else:
 		return False
 
-	
-	
+
+
 # Login manager uses this function to manage user sessions.
 # Function does a lookup by id and returns the User object if
 # it exists, None otherwise.
@@ -175,31 +174,29 @@ def load_user(id):
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 @login_required
-
-
 def index():
 	db = pymysql.connect(host='35.229.79.169', user='root', password='password', db='med_minder')
 	c = db.cursor()
-	c.execute('SELECT * from medications')
+	c.execute('SELECT * from usermeds')
 	l = c.fetchall()
 	db.close()
 	return render_tamplate ('index.html', data=l)
 
-	
-	
+
+
 @app.route('/addrxman', methods=['GET', 'POST'])
 def addrxman():
 	form = Add()
 	if form.validate_on_submit():
 		db = pymysql.connect(host='35.229.79.169', user='root', password='password', db='med_minder')
 		c = db.cursor()
-		sql = 'INSERT INTO medicaton(name, dosage, refill, frequency) VALUES'\
+		sql = 'INSERT INTO usermeds(med_name, med_dose, num_refills, med_freq) VALUES'\
 		"(%s, %s, %s, %s)"
-		c.execute (sql, (medication, str(name), int(dosage), int(refill), int(frequency)))
+		c.execute (sql, (usermeds, str(med_name), int(med_dose), int(num_refills), int(med_freq)))
 		db.commit()
 		db.close()
 		return (redirect('/view'))
-	return render_template('index.html', form_add=form)	
+	return render_template('index.html', form_add=form)
 
 
 @app.route('/remove',methods=['GET', 'POST'])
@@ -208,22 +205,21 @@ def removerx():
 	if form.validate_on_submit():
 		db = pymysql.connect(host='35.229.79.169', user='root', password='password', db='med_minder')
 		c = db.cursor()
-		sql = "DELETE FROM medication WHERE name = '"+medication+"'"
+		sql = "DELETE FROM usermeds WHERE name = '"+med_name+"'"
 		c.execute (sql)
 		db.commit()
 		db.close()
 		return (redirect('/view'))
-		return render_template('index.html', form_add=form)	
+		return render_template('index.html', form_add=form)
 
 @app.route('/logout')
 def logout():
 	logout_user()
 	return redirect(url_for('index'))
-	
+
 @app.route('/about')
 def about():
 		return render_template('about.html', title='About')
-	
+
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', port=8080, debug=True)
-
