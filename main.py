@@ -194,11 +194,11 @@ def removerx():
 		city = form.city.data
 		db=pymysql.connect(host='35.237.157.161', user='root', password='123', db='med_minder')
 		c = db.cursor()
-			sql = "DELETE FROM medication WHERE name = '"+medication+"'"
-			c.execute (sql)
-			db.commit()
-			db.close()
-			return (redirect('/view'))
+		sql = "DELETE FROM medication WHERE name = '"+medication+"'"
+		c.execute (sql)
+		db.commit()
+		db.close()
+		return (redirect('/view'))
 		return render_template('index.html', form_add=form)	
 
 @app.route('/logout')
