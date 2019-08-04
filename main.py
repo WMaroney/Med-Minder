@@ -120,7 +120,7 @@ med_db = {}
 # Verification email on account creation	
 	
 def verifyEmail(email, password, role):
-	fromaddr = "Med_Minder@gmail.com"
+	fromaddr = "medmindercsc400@gmail.com"
 	toaddr = email
 	
 	#Generate hex UUID which is unique and save this to the invite_db
@@ -134,7 +134,7 @@ def verifyEmail(email, password, role):
 	msg['Subject'] = "Med_Minder Verify Email"
 	server = smtplib.SMTP('smtp.gmail.com:587')
 	server.starttls()
-	server.login("Med_Minder@gmail.com", "hxzpssbvnpweqlum")
+	server.login("medmindercsc400@gmail.com", "Atmose@123")
 	text = msg.as_string()
 	server.sendmail(fromaddr,[toaddr],text)
 	server.quit()
