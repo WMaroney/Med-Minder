@@ -156,7 +156,7 @@ def verifyEmail(email, password, role):
 	msg['From'] = fromaddr
 	msg['To'] = toaddr
 	msg['Subject'] = "Med-Minder Verify Email"
-	server = smtplib.SMTP('smtp.gmail.com:587')
+	server = smtplib.SMTP('smtp-relay.gmail.com')
 	server.starttls()
 	server.login("medmindercsc400@gmail.com", "Atmose@123")
 	text = msg.as_string()
