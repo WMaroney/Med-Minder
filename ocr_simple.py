@@ -38,3 +38,9 @@ if __name__ == '__main__':
 
 	# Print recognized text
 	print(text)
+	
+# just in case ---NEEDED
+# tesseract image.jpg stdout -l eng --oem 1 --psm 3
+# output to terminal
+# tesseract image.jpg output -l eng --oem 1 --psm 3
+# output to text file "output.txt"
