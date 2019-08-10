@@ -66,15 +66,11 @@ class Remove(FlaskForm):
 ## User class
 
 class User(UserMixin):
-	def __init__(self, ident, username, name, email, setup, password, role):
+	def __init__(self, username, password):
 		self.id = username.replace("'", "")
 		# hash the password and output it to stderr
-		self.pass_hash = password
-		self.role = role
-		self.name = name
-		self.email = email
-		self.profileSetup = int(setup)
-		self.ident = ident
+		self.password = password
+
 
 class Medication():
 	def __init__(self, id, addedDate, dosage, freq, refill):
@@ -110,16 +106,17 @@ def allowed_file(filename):
 def load_users():
 	c.execute("SELECT * from users")
 	users = c.fetchall()
+	# print (users)
 	for user in users:
-		user_db["" + str(user[2])] = User(user[0],"'" + user[2] + "'",user[1],user[2],user[3],user[4],user[5],user[6],user[7],user[8],user[9],user[10], 'user')
-		print(user_db.get(str(user[2].replace("'", ""))).id + ": Created as User")
+		user_db[user[1]]=user[2]
+	# print(user_db)
 	
 def load_meds():
 	c.execute("SELECT * from usermeds")
 	meds = c.fetchall()
 	for med in meds:
 		med_db[str(app[0])] = Medication(med[0],med[1],med[2],med[3],med[4],med[5],med[6])
-		print(str(med_db.get(str(med[0])).id) + ": Created as Medication")
+		# print(str(med_db.get(str(med[0])).id) + ": Created as Medication")
 
 # Init User and Medication Databases
 
@@ -135,33 +132,7 @@ invite_db = {}
 #Dictionary of verifies sent to users
 verify_db = {}
 
-def checkUUID(ID, selectList):
-	if selectList == "verify":
-		return verify_db.get(ID)
-	elif selectList == "invite":
-		return invite_db.get(ID)
-	else:
-		return None
 	
-def verifyEmail(email, password, role):
-	fromaddr = "medmindercsc400@gmail.om"
-	toaddr = email
-	
-	#Generate hex UUID which is unique and save this to the invite_db
-	x = uuid.uuid1()
-	verify_db[str(x)] = [email, password, role]
-	
-	body = "Please click the link below to verify your account! <br><a href='http://127.0.0.1:5000/verify/" + str(x) + "'>Link</a>"
-	msg = MIMEText(body, 'html')
-	msg['From'] = fromaddr
-	msg['To'] = toaddr
-	msg['Subject'] = "Med-Minder Verify Email"
-	server = smtplib.SMTP('smtp-relay.gmail.com')
-	server.starttls()
-	server.login("medmindercsc400@gmail.com", "Atmose@123")
-	text = msg.as_string()
-	server.sendmail(fromaddr,[toaddr],text)
-	server.quit()
 	
 def profileIsSetup():
 	if current_user.profileSetup == 1:
@@ -176,8 +147,8 @@ def profileIsSetup():
 # it exists, None otherwise.
 @login_manager.user_loader
 def load_user(id):
-	return user_db.get(id)
-
+	return User(id, user_db[id])
+	
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 @login_required
@@ -187,7 +158,7 @@ def index():
 	c.execute('SELECT * from usermeds')
 	l = c.fetchall()
 	db.close()
-	return render_tamplate ('index.html', data=l)
+	return render_template ('index.html', data=l)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -196,16 +167,17 @@ def login():
 	# display the login form
 	form = LoginForm()
 	if form.validate_on_submit():
-		user = user_db[form.username.data]
+		user = form.username.data
+		# print(user)
 		# validate user
-		valid_password = check_password_hash(user.pass_hash, form.password.data)
+		valid_password = user_db[form.username.data]
 		if user is None or not valid_password:
 			print('Invalid username or password', file=sys.stderr)
 			redirect(url_for('index'))
 		else:
 			print(user)
-			login_user(user)
-			print(user.is_authenticated)
+			login_user(User (user, valid_password))
+			# print(user.is_authenticated)
 			flash('Login Successful', category='success')
 			return redirect(url_for('index'))
 
@@ -222,15 +194,27 @@ def signup():
 		exists = user_db.get(user)
 		# validate user
 		if exists is None:
-			user_pass = generate_password_hash(form.password.data)
-			verifyEmail(user, user_pass, "student")
-			flash('Please check your email to verify your account', category='info')
+			user_pass = form.password.data
+			c.execute ('INSERT INTO users (user_id, user_email, user_password) VALUES ({},"{}","{}")'.format(0,user, user_pass))
+			db.commit()
+			load_users()
 			return redirect(url_for('index'))
 		else:
 			flash('Invalid User Name or Password', category='error')
 			return redirect(url_for('index'))
 
 	return render_template('signUP.html', title='Sign Up', form=form)
+
+@app.route('/addscan', methods=['GET', 'POST'])
+def addscan ():
+	return render_template('addscan.html')
+	
+@app.route('/imgprocess', methods=['POST'])
+def imgprocess():
+	b = request.args['img']
+	print(b)
+	return redirect(url_for('index'))
+
 
 
 
@@ -246,7 +230,7 @@ def addrxman():
 		db.commit()
 		db.close()
 		return (redirect('/view'))
-	return render_template('index.html', form_add=form)
+	return render_template('addrxman.html', form_add=form)
 
 
 @app.route('/remove',methods=['GET', 'POST'])
