@@ -2,7 +2,7 @@
 from flask import render_template, flash, redirect, url_for, request, Flask, send_file
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
-from werkzeug.security import check_password_hash, generate_password_hash
+# from werkzeug.security import check_password_hash, generate_password_hash
 from wtforms import Form, StringField, DateTimeField, TextField, PasswordField, validators, SubmitField, TextAreaField, RadioField, IntegerField, FloatField, FileField, SelectField
 from wtforms.fields.html5 import DateField
 from wtforms.validators import ValidationError, DataRequired, EqualTo
@@ -14,13 +14,18 @@ import pymysql #used to connect SQL DB to python and run queries
 import sqlite3
 import getpass
 from email.message import EmailMessage
-import smtplib
+# import smtplib
 from email.mime.text import MIMEText
-import uuid
+# import uuid
 from werkzeug.utils import secure_filename
 import os
 import datetime
 import re
+from PIL import Image
+from io import BytesIO
+import base64
+import io
+
 
 db = pymysql.connect(host='35.229.79.169', user='root', password='password', db='med_minder')
 c = db.cursor()
@@ -55,7 +60,7 @@ class AddManual(FlaskForm):
 	submit =  SubmitField('Submit: ')
 
 class AddScan(FlaskForm):
-	# Initiate OCR to get text file
+	# Add Scan Form
 	submit =  SubmitField('Add Prescription via Camera')
 
 # Remove Rx Form
@@ -126,11 +131,6 @@ med_db = {}
 load_users()
 load_meds()
 
-#Dictionary of invites sent to users
-invite_db = {}
-
-#Dictionary of verifies sent to users
-verify_db = {}
 
 	
 	
@@ -209,14 +209,14 @@ def signup():
 def addscan ():
 	return render_template('addscan.html')
 	
-@app.route('/imgprocess', methods=['POST'])
+@app.route('/imgprocess', methods=['GET', 'POST'])
 def imgprocess():
-	b = request.args['img']
-	print(b)
-	return redirect(url_for('index'))
-
-
-
+	data = request.form["img"] # grab the image captured
+	image_data = re.sub('^data:image/.+;base64,', '', request.form['img']) # remove metadata (mimetype)
+	im = Image.open(BytesIO(base64.b64decode(image_data))) # open the image in memory
+	im = im.convert("RGB") # convert to a format recognized by JPEG encoding mime
+	im.save("test.jpg") # save the image as test.jpg or can be a path to some folder as well and renamed
+	return redirect(url_for('index')) # push user to index
 
 @app.route('/addrxman', methods=['GET', 'POST'])
 def addrxman():
