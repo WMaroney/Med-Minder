@@ -49,12 +49,12 @@ class ConfirmMedicationAdd(FlaskForm):
 	submit = SubmitField('Confirm')
 
 # Add Rx Manual Form
-class AddManual(FlaskForm):
-	medication = StringField('Medication', validators=[DataRequired()])
+class AddManualForm(FlaskForm):
+	med_name = StringField('Medication', validators=[DataRequired()])
 	dosage = IntegerField('Dosage', validators=[DataRequired()])
-	freq = StringField('Frequency', validators=[DataRequired()])
+	frequency = StringField('Frequency', validators=[DataRequired()])
 	refills = IntegerField('Refills', validators=[DataRequired()])
-	dateFill = DateTimeField('Date Filled', validators=[DataRequired()])
+	dateFill = DateField('Date Filled', format='%m/%d/%Y', validators=[DataRequired()])
 	doc = StringField('Physician', validators=[DataRequired()])
 	pharm = StringField('Pharmacy', validators=[DataRequired()])
 	submit =  SubmitField('Submit: ')
@@ -64,8 +64,8 @@ class AddScan(FlaskForm):
 	submit =  SubmitField('Add Prescription via Camera')
 
 # Remove Rx Form
-class Remove(FlaskForm):
-	medication = StringField('Medication', validators=[DataRequired()])
+class RemoveForm(FlaskForm):
+	med_name = StringField('Medication', validators=[DataRequired()])
 	submit =  SubmitField('Remove Prescription')
 
 ## User class
@@ -78,12 +78,12 @@ class User(UserMixin):
 
 
 class Medication():
-	def __init__(self, id, addedDate, dosage, frequency, refill):
-		self.id = id
-		self.addedDate = addedDate
+	def __init__(self, medname, dateFill, dosage, frequency, refills):
+		self.id = medname
+		self.dateFill = dateFill
 		self.dosage = dosage
-		self.freq = frequency
-		self.refill = refill
+		self.frequency = frequency
+		self.refills = refills
 
 
 ## Creating the Flask app object and login manager
@@ -121,7 +121,7 @@ def load_meds():
 	meds = c.fetchall()
 	for med in meds:
 		med_db[str(med[0])] = Medication(med[0],med[1],med[2],med[3],med[4])
-		# print(str(med_db.get(str(med[0])).id) + ": Created as Medication")
+	#print(str(med_db.get(str(med[0])).id) + ": Created as Medication")
 
 # Init User and Medication Databases
 
@@ -220,31 +220,34 @@ def imgprocess():
 
 @app.route('/addrxman', methods=['GET', 'POST'])
 def addrxman():
-	form = AddManual()
+	form = AddManualForm()
 	if form.validate_on_submit():
+		med_name = form.med_name.data
+		frequency = form.frequency.data
+		dosage = form.dosage.data
+		refills = form.refills.data
 		db = pymysql.connect(host='35.229.79.169', user='root', password='password', db='med_minder')
 		c = db.cursor()
-		sql = 'INSERT INTO usermeds(med_name, med_dose, num_refills, med_freq) VALUES'\
-		"(%s, %s, %s, %s)"
-		c.execute (sql, (usermeds, str(med_name), int(med_dose), int(num_refills), int(med_freq)))
+		sql = ('INSERT INTO usermeds (med_id, med_name, med_freq, med_dose, num_refills) VALUES ({},"{}","{}","{}","{}")'.format(0, med_name, frequency, dosage, refills))
+		c.execute (sql)
 		db.commit()
-		db.close()
+		load_meds()
 		return (redirect('/view'))
-	return render_template('addrxman.html', form_add=form)
+	return render_template('addrxman.html', title='Add Rx', form=form)
 
 
 @app.route('/remove',methods=['GET', 'POST'])
 def removerx():
-	form = Remove()
+	form = RemoveForm()
 	if form.validate_on_submit():
 		db = pymysql.connect(host='35.229.79.169', user='root', password='password', db='med_minder')
 		c = db.cursor()
-		sql = "DELETE FROM usermeds WHERE name = '"+med_name+"'"
+		sql = "DELETE FROM usermeds WHERE med_name = '"+med_name+"'"
 		c.execute (sql)
 		db.commit()
 		db.close()
 		return (redirect('/view'))
-		return render_template('index.html', form_add=form)
+	return render_template('removerx.html', title='Remove Rx', form=form)
 
 @app.route('/logout')
 def logout():
@@ -257,5 +260,3 @@ def about():
 
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', port=8080, debug=True)
-
-	
