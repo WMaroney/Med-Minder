@@ -211,7 +211,7 @@ def addscan ():
 	
 @app.route('/imgprocess', methods=['POST'])
 def imgprocess():
-	data = request.form["img"] # grab the image captured
+	data = request.form['img'] # grab the image captured
 	image_data = re.sub('^data:image/.+;base64,', '', request.form['img']) # remove metadata (mimetype)
 	im = Image.open(BytesIO(base64.b64decode(image_data))) # open the image in memory
 	im = im.convert("RGB") # convert to a format recognized by JPEG encoding mime
