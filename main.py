@@ -78,12 +78,12 @@ class User(UserMixin):
 
 
 class Medication():
-	def __init__(self, id, addedDate, dosage, freq, refill):
+	def __init__(self, id, addedDate, dosage, frequency, refill):
 		self.id = id
 		self.addedDate = addedDate
 		self.dosage = dosage
 		self.freq = frequency
-		self.refill = refills
+		self.refill = refill
 
 
 ## Creating the Flask app object and login manager
@@ -120,7 +120,7 @@ def load_meds():
 	c.execute("SELECT * from usermeds")
 	meds = c.fetchall()
 	for med in meds:
-		med_db[str(med[0])] = Medication(med[0],med[1],med[2],med[3],med[4],med[5],med[6])
+		med_db[str(med[0])] = Medication(med[0],med[1],med[2],med[3],med[4])
 		# print(str(med_db.get(str(med[0])).id) + ": Created as Medication")
 
 # Init User and Medication Databases
