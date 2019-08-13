@@ -8,7 +8,7 @@
 <video id="player" controls autoplay></video>
 <button id="capture">Capture</button>
 <canvas id="canvas" width=320 height=240></canvas>
-<form method="post" action="{{url_for('imgprocess')}}" onsubmit="prepareImg();" name="imgform">
+<form method="post" action="{{url_for('imgprocess')}}" name="imgform">
 	<input id="inp_img" name="img" type="hidden" value="">
 	<input id="bt_upload" type="submit" value="Upload">
 </form>
