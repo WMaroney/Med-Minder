@@ -36,8 +36,8 @@
 
 <script>
 function prepareImg() {
-	var canvas = document.getElementById('canv');
-	document.getElementById('inp_img').value = canvas.toDataURL();
+	var canvas = document.getElementById('canvas');
+	document.getElementById('inp_img').value = canvas.toDataUR("image/jpg").replace("image/jpg", "image/octet-stream");;
 }
 
 </script>
