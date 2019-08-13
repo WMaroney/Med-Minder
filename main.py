@@ -209,7 +209,7 @@ def signup():
 def addscan ():
 	return render_template('addscan.html')
 	
-@app.route('/imgprocess', methods=['GET', 'POST'])
+@app.route('/imgprocess', methods=['POST'])
 def imgprocess():
 	data = request.form["img"] # grab the image captured
 	image_data = re.sub('^data:image/.+;base64,', '', request.form['img']) # remove metadata (mimetype)
