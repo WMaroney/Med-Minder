@@ -58,4 +58,4 @@ def create_event(start_time_str, summary, duration=1, attendees=None, descriptio
 	return service.events().insert(calndarId='primary',
 	body=event,sendNotifications=True).execute()	
 
-create_event(start_time_str, summary [, duration [, attendees [, description [, location ]]]])
+#create_event(start_time_str, summary [, duration [, attendees [, description [, location ]]]])
