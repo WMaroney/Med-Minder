@@ -122,7 +122,7 @@ def load_meds():
 
 # Init User and Medication Databases
 
-user_db = {"wmaroney78@gmail.com":'abc'}
+user_db = {}
 med_db = {}
 
 load_users()
@@ -150,12 +150,7 @@ def load_user(id):
 @app.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
-	db = pymysql.connect(host='35.229.79.169', user='root', password='password', db='med_minder')
-	c = db.cursor()
-	c.execute('SELECT * from usermeds')
-	l = c.fetchall()
-	db.close()
-	return render_template ('index.html', data=l)
+	return render_template ('index.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -171,7 +166,7 @@ def login():
 			print('Invalid username or password', file=sys.stderr)
 			redirect(url_for('index'))
 		else:
-			print(user)
+			# print(user)
 			login_user(User (user, valid_password))
 			# print(user.is_authenticated)
 			flash('Login Successful', category='success')
@@ -214,7 +209,7 @@ def imgprocess():
 	im = im.convert("RGB") # convert to a format recognized by JPEG encoding mime
 	im.save("test.jpg") # save the image as test.jpg or can be a path to some folder as well and renamed
 	text = ocr_simple.img_to_text("test.jpg")
-	return render_template("addrxman.html", upload=True, text=text, form=form) #push user to addrx manual form
+	return render_template('addrxman.html', upload=True, text=text, form=form) #push user to addrx manual form
 
 @app.route('/addrxman', methods=['GET', 'POST'])
 def addrxman():
@@ -229,7 +224,7 @@ def addrxman():
 		db = pymysql.connect(host='35.229.79.169', user='root', password='password', db='med_minder')
 		c = db.cursor()
 		user_id = c.execute ('SELECT user_id FROM users WHERE user_email="{}"'.format(current_user.id))
-		#print(user_id)
+		# print(user_id)
 		sql = ('INSERT INTO usermeds (med_id, user_id, med_name, med_freq, med_dose, dr_name, refill_date, num_refills) VALUES ({},"{}","{}","{}","{}","{}","{}","{}")'.format(0, user_id, med_name, frequency, dosage, doc, dateFill, refills))
 		c.execute (sql)
 		db.commit()
@@ -243,10 +238,12 @@ def removerx():
 	form = RemoveForm()
 	db = pymysql.connect(host='35.229.79.169', user='root', password='password', db='med_minder')
 	c = db.cursor()
-	user_id = c.execute ('SELECT user_id FROM users WHERE user_email="{}"'.format(current_user.id))
+	user_id = c.execute('SELECT user_id FROM users WHERE user_email="{}"'.format(current_user.id))
 	c.execute('SELECT med_id, med_name from usermeds WHERE user_id = {}'.format(user_id))
 	meds=c.fetchall()
 	form.med_name.choices = meds
+	print(meds)
+	print(user_id)
 	if form.validate_on_submit():
 		sql = "DELETE FROM usermeds WHERE med_id = '{}'".format(form.med_name.data)
 		c.execute (sql)
