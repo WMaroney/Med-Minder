@@ -2,14 +2,14 @@ import cv2
 import sys
 import pytesseract
 
-if __name__ == '__main__':
-
-	if len(sys.argv) < 2:
-		print('Usage: python ocr_simple.py image.jpg')
-		sys.exit(1)
+def img_to_text(img_path):
+	
+	#if len(sys.argv) < 2:
+		#print('Usage: python ocr_simple.py image.jpg')
+		#sys.exit(1)
 	
 	# Read image path from command line
-	imPath = sys.argv[1]
+	imPath = img_path
 		
 	# Uncomment the line below to provide path to tesseract manually
 	# pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
@@ -38,6 +38,7 @@ if __name__ == '__main__':
 
 	# Print recognized text
 	print(text)
+	return (text)
 	
 # just in case ---NEEDED
 # tesseract image.jpg stdout -l eng --oem 1 --psm 3
