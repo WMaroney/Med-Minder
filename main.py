@@ -223,8 +223,9 @@ def addrxman():
 		refills = form.refills.data
 		db = pymysql.connect(host='35.229.79.169', user='root', password='password', db='med_minder')
 		c = db.cursor()
-		user_id = c.execute ('SELECT user_id FROM users WHERE user_email="{}"'.format(current_user.id))
-		# print(user_id)
+		c.execute ('SELECT user_id FROM users WHERE user_email="{}"'.format(current_user.id))
+		user_id= c.fetchall()[0][0]
+		print(user_id)
 		sql = ('INSERT INTO usermeds (med_id, user_id, med_name, med_freq, med_dose, dr_name, refill_date, num_refills) VALUES ({},"{}","{}","{}","{}","{}","{}","{}")'.format(0, user_id, med_name, frequency, dosage, doc, dateFill, refills))
 		c.execute (sql)
 		db.commit()
@@ -236,9 +237,11 @@ def addrxman():
 @app.route('/remove',methods=['GET', 'POST'])
 def removerx():
 	form = RemoveForm()
+	load_meds()
 	db = pymysql.connect(host='35.229.79.169', user='root', password='password', db='med_minder')
 	c = db.cursor()
-	user_id = c.execute('SELECT user_id FROM users WHERE user_email="{}"'.format(current_user.id))
+	c.execute('SELECT user_id FROM users WHERE user_email="{}"'.format(current_user.id))
+	user_id = c.fetchall()[0][0]
 	c.execute('SELECT med_id, med_name from usermeds WHERE user_id = {}'.format(user_id))
 	meds=c.fetchall()
 	form.med_name.choices = meds
