@@ -2,7 +2,6 @@
 from flask import render_template, flash, redirect, url_for, request, Flask, send_file
 from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user, login_required
 from werkzeug.urls import url_parse
-# from werkzeug.security import check_password_hash, generate_password_hash
 from wtforms import Form, StringField, DateTimeField, TextField, PasswordField, validators, SubmitField, TextAreaField, RadioField, IntegerField, FloatField, FileField, SelectField
 from wtforms.fields.html5 import DateField
 from wtforms.validators import ValidationError, DataRequired, EqualTo
@@ -14,9 +13,7 @@ import pymysql #used to connect SQL DB to python and run queries
 import sqlite3
 import getpass
 from email.message import EmailMessage
-# import smtplib
 from email.mime.text import MIMEText
-# import uuid
 from werkzeug.utils import secure_filename
 import os
 import datetime
@@ -25,6 +22,7 @@ from PIL import Image
 from io import BytesIO
 import base64
 import io
+import ocr_simple
 
 
 db = pymysql.connect(host='35.229.79.169', user='root', password='password', db='med_minder')
@@ -54,7 +52,7 @@ class AddManualForm(FlaskForm):
 	dosage = IntegerField('Dosage', validators=[DataRequired()])
 	frequency = StringField('Frequency', validators=[DataRequired()])
 	refills = IntegerField('Refills', validators=[DataRequired()])
-	dateFill = DateField('Date Filled', format='%m/%d/%Y', validators=[DataRequired()])
+	dateFill = DateField('Date Filled', validators=[])
 	doc = StringField('Physician', validators=[DataRequired()])
 	pharm = StringField('Pharmacy', validators=[DataRequired()])
 	submit =  SubmitField('Submit: ')
@@ -65,7 +63,7 @@ class AddScan(FlaskForm):
 
 # Remove Rx Form
 class RemoveForm(FlaskForm):
-	med_name = StringField('Medication', validators=[DataRequired()])
+	med_name = SelectField('Medication', choices= [], coerce=int)
 	submit =  SubmitField('Remove Prescription')
 
 ## User class
@@ -121,11 +119,10 @@ def load_meds():
 	meds = c.fetchall()
 	for med in meds:
 		med_db[str(med[0])] = Medication(med[0],med[1],med[2],med[3],med[4])
-	#print(str(med_db.get(str(med[0])).id) + ": Created as Medication")
 
 # Init User and Medication Databases
 
-user_db = {}
+user_db = {"williamm1978@yahoo.com":'123'}
 med_db = {}
 
 load_users()
@@ -168,7 +165,6 @@ def login():
 	form = LoginForm()
 	if form.validate_on_submit():
 		user = form.username.data
-		# print(user)
 		# validate user
 		valid_password = user_db[form.username.data]
 		if user is None or not valid_password:
@@ -211,42 +207,52 @@ def addscan ():
 	
 @app.route('/imgprocess', methods=['GET', 'POST'])
 def imgprocess():
+	form = AddManualForm()
 	data = request.form['img'] # grab the image captured
 	image_data = re.sub('^data:image/.+;base64,', '', request.form['img']) # remove metadata (mimetype)
 	im = Image.open(BytesIO(base64.b64decode(image_data))) # open the image in memory
 	im = im.convert("RGB") # convert to a format recognized by JPEG encoding mime
 	im.save("test.jpg") # save the image as test.jpg or can be a path to some folder as well and renamed
-	return redirect(url_for('index')) # push user to index
+	text = ocr_simple.img_to_text("test.jpg")
+	return render_template("addrxman.html", upload=True, text=text, form=form) #push user to addrx manual form
 
 @app.route('/addrxman', methods=['GET', 'POST'])
 def addrxman():
 	form = AddManualForm()
 	if form.validate_on_submit():
 		med_name = form.med_name.data
+		doc = form.doc.data
+		dateFill = form.dateFill.data
 		frequency = form.frequency.data
 		dosage = form.dosage.data
 		refills = form.refills.data
 		db = pymysql.connect(host='35.229.79.169', user='root', password='password', db='med_minder')
 		c = db.cursor()
-		sql = ('INSERT INTO usermeds (med_id, med_name, med_freq, med_dose, num_refills) VALUES ({},"{}","{}","{}","{}")'.format(0, med_name, frequency, dosage, refills))
+		user_id = c.execute ('SELECT user_id FROM users WHERE user_email="{}"'.format(current_user.id))
+		#print(user_id)
+		sql = ('INSERT INTO usermeds (med_id, user_id, med_name, med_freq, med_dose, dr_name, refill_date, num_refills) VALUES ({},"{}","{}","{}","{}","{}","{}","{}")'.format(0, user_id, med_name, frequency, dosage, doc, dateFill, refills))
 		c.execute (sql)
 		db.commit()
 		load_meds()
-		return (redirect('/view'))
+		return (redirect('/index'))
 	return render_template('addrxman.html', title='Add Rx', form=form)
 
 
 @app.route('/remove',methods=['GET', 'POST'])
 def removerx():
 	form = RemoveForm()
+	db = pymysql.connect(host='35.229.79.169', user='root', password='password', db='med_minder')
+	c = db.cursor()
+	user_id = c.execute ('SELECT user_id FROM users WHERE user_email="{}"'.format(current_user.id))
+	c.execute('SELECT med_id, med_name from usermeds WHERE user_id = {}'.format(user_id))
+	meds=c.fetchall()
+	form.med_name.choices = meds
 	if form.validate_on_submit():
-		db = pymysql.connect(host='35.229.79.169', user='root', password='password', db='med_minder')
-		c = db.cursor()
-		sql = "DELETE FROM usermeds WHERE med_name = '"+med_name+"'"
+		sql = "DELETE FROM usermeds WHERE med_id = '{}'".format(form.med_name.data)
 		c.execute (sql)
 		db.commit()
 		db.close()
-		return (redirect('/view'))
+		return (redirect('/index'))
 	return render_template('removerx.html', title='Remove Rx', form=form)
 
 @app.route('/logout')
@@ -260,3 +266,4 @@ def about():
 
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', port=8080, debug=True)
+
