@@ -6,11 +6,10 @@ An medication reminding application that uses your device camera to scan a Rx La
 	- pytesseract
 	- OpenCV
 	- Flask
-		-Flask Forms
-		-Flask WTF
+		- Flask Forms
+		- Flask WTF
 	- pymySQL
 	- SQLite
-
 ## Description
 This project uses the device camera to scan Rx label and automatically populate a google calendar with reminders of dosage and refills
 ### Where I am in development?
@@ -23,15 +22,14 @@ This project uses the device camera to scan Rx label and automatically populate 
 - [x] Able to remove rx
 - [x] Display the calendar--Displays my calendar--not quite right yet--*
 - [ ] Interface with Google Calendar API--calendar.py written but not tested or debugged yet--*
-
 ## File & Folder Organization
--File & Folder Organization
-	-Folders
-		-Templates folder holds html templates
-		-SQL folder holds database schema
-	-Files
-		-main.py (main program)
-		-ocr_simple.py (Object Character Recognition)
-		-README.md
-		-rqs.txt (requirements)
-		-calendar.py (NOT INCLUDED/FINISHED)
+- File & Folder Organization
+	- Folders
+		- Templates folder holds html templates
+		- SQL folder holds database schema
+	- Files
+		- main.py (main program)
+		- ocr_simple.py (Object Character Recognition)
+		- README.md
+		- rqs.txt (requirements)
+		- calendar.py (NOT INCLUDED/FINISHED)
