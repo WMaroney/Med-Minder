@@ -1,6 +1,6 @@
 # MedMinder
 An medication reminding application that uses your device camera to scan a Rx Label and create the reminders automatically
-## Requires
+## Requirements
 - Python3
 	- Tesseract
 	- pytesseract
@@ -25,8 +25,9 @@ This project uses the device camera to scan Rx label and automatically populate 
 - [ ] Interface with Google Calendar API--calendar.py written but not tested or debugged yet--*
 
 ## File & Folder Organization
--Templates folder holds html templates
--SQL folder holds database schema
+-Folder Organization
+	-Templates folder holds html templates
+	-SQL folder holds database schema
 -Files
 	-main.py (main program)
 	-ocr_simple.py (Object Character Recognition)
