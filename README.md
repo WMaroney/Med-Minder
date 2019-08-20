@@ -25,12 +25,13 @@ This project uses the device camera to scan Rx label and automatically populate 
 - [ ] Interface with Google Calendar API--calendar.py written but not tested or debugged yet--*
 
 ## File & Folder Organization
--Folder Organization
-	-Templates folder holds html templates
-	-SQL folder holds database schema
--Files
-	-main.py (main program)
-	-ocr_simple.py (Object Character Recognition)
-	-README.md
-	-rqs.txt (requirements)
-	-calendar.py (NOT INCLUDED/FINISHED)
+-File & Folder Organization
+	-Folders
+		-Templates folder holds html templates
+		-SQL folder holds database schema
+	-Files
+		-main.py (main program)
+		-ocr_simple.py (Object Character Recognition)
+		-README.md
+		-rqs.txt (requirements)
+		-calendar.py (NOT INCLUDED/FINISHED)
