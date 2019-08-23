@@ -13,7 +13,9 @@ import pymysql #used to connect SQL DB to python and run queries
 import sqlite3
 import getpass
 from email.message import EmailMessage
+import smtplib
 from email.mime.text import MIMEText
+import uuid
 from werkzeug.utils import secure_filename
 import os
 import datetime
@@ -49,8 +51,8 @@ class ConfirmMedicationAdd(FlaskForm):
 # Add Rx Manual Form
 class AddManualForm(FlaskForm):
 	med_name = StringField('Medication', validators=[DataRequired()])
-	dosage = IntegerField('Dosage', validators=[DataRequired()])
-	frequency = StringField('Frequency', validators=[DataRequired()])
+	dosage = IntegerField('Dosage', validators=[DataRequired("Enter only the Numeric Value")])
+	frequency = StringField('Frequency', validators=[DataRequired("Enter the Number of Times per Day")])
 	refills = IntegerField('Refills', validators=[DataRequired()])
 	dateFill = DateField('Date Filled', validators=[])
 	doc = StringField('Physician', validators=[DataRequired()])
@@ -60,6 +62,9 @@ class AddManualForm(FlaskForm):
 class AddScan(FlaskForm):
 	# Add Scan Form
 	submit =  SubmitField('Add Prescription via Camera')
+	
+class ViewRx(FlaskForm):
+	med_name = SelectField('Current Medications', choices= [], coerce=int)
 
 # Remove Rx Form
 class RemoveForm(FlaskForm):
@@ -136,7 +141,24 @@ def profileIsSetup():
 		return True
 	else:
 		return False
-	
+
+def reminderEmail(user_id, medname, freq):
+	fromaddr = "medmindercsc400@gmail.com"
+	toaddr = user_id
+	Medication.id = medname	
+	Medication.frequency = freq	
+	body = "Please Remember to Take Your Medication " + str(Medication.id) + " " + str(Medication.frequency) + " per day"
+	msg = MIMEText(body, 'html')
+	msg['From'] = fromaddr
+	msg['To'] = toaddr
+	msg['Subject'] = "Medication Reminder "
+	server = smtplib.SMTP('smtp.gmail.com:587')
+	server.starttls()
+	server.login("medmindercsc400@gmail.com", "Atmose@123")
+	text = msg.as_string()
+	server.sendmail(fromaddr,[toaddr],text)
+	server.quit()
+	print("EMail sent!")
 
 
 # Login manager uses this function to manage user sessions.
@@ -150,7 +172,16 @@ def load_user(id):
 @app.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
-	return render_template ('index.html')
+	form = ViewRx()
+	load_meds()
+	db = pymysql.connect(host='35.229.79.169', user='root', password='password', db='med_minder')
+	c = db.cursor()
+	c.execute('SELECT user_id FROM users WHERE user_email="{}"'.format(current_user.id))
+	user_id = c.fetchall()[0][0]
+	c.execute('SELECT med_id, med_name from usermeds WHERE user_id = {}'.format(user_id))
+	meds=c.fetchall()
+	form.med_name.choices = meds
+	return render_template ('index.html', form=form, meds=med_db.values())
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -230,7 +261,9 @@ def addrxman():
 		c.execute (sql)
 		db.commit()
 		load_meds()
+		reminderEmail(current_user.id, med_name, frequency)
 		return (redirect('/index'))
+		
 	return render_template('addrxman.html', title='Add Rx', form=form)
 
 
@@ -266,4 +299,3 @@ def about():
 
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', port=8080, debug=True)
-
