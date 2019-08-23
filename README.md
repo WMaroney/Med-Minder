@@ -20,6 +20,8 @@ This project uses the device camera to scan Rx label and automatically populate 
 - [x] Able to add rx automatic--Populates text block for user to copy and paste atm--*
 - [x] Able to add rx manual
 - [x] Able to remove rx
+- [x] Email Reminder to User when Rx is added
+- [x] Display Meds on Index
 - [x] Display the calendar--Displays my calendar--not quite right yet--*
 - [ ] Interface with Google Calendar API--calendar.py written but not tested or debugged yet--*
 ## File & Folder Organization
