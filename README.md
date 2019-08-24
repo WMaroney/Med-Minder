@@ -16,9 +16,9 @@ This project uses the device camera to scan Rx label and automatically populate 
 - [x] Hosted 
 - [x] Able to login
 - [x] Able to open device camera and obtain ".jpg" of label
-- [x] Able to scan image with text and output text to ".txt" file
+- [x] Able to scan image with text
 - [x] Able to add rx automatic--Populates text block for user to copy and paste atm--*
-- [x] Able to add rx manual
+- [x] Able to add rx manually
 - [x] Able to remove rx
 - [x] Email Reminder to User when Rx is added
 - [x] Display Meds on Index
@@ -35,3 +35,10 @@ This project uses the device camera to scan Rx label and automatically populate 
 		- README.md
 		- rqs.txt (requirements)
 		- calendar.py (INCLUDED BUT NOT FINISHED)
+		
+## To Run the Application
+- Clone or download repo to desktop
+- Open terminal and navigate to Med-Minder Folder
+- Install rqs.txt from the terminal (pip3 install -r rqs.txt)
+- Run python3 main.py
+- Open Firefox/Chrome or any other internet Browser and Input "http://localhost:8080" to view the web application
