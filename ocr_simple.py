@@ -26,7 +26,11 @@ def img_to_text(img_path):
 	#
 	#  '--psm 3' sets the Page Segmentation Mode (psm) to auto.
 	#  Other important psm modes will be discussed in a future post.  
-
+	# just in case ---NEEDED
+	# tesseract image.jpg stdout -l eng --oem 1 --psm 3
+	# output to terminal
+	# tesseract image.jpg output -l eng --oem 1 --psm 3
+	# output to text file "output.txt"
 
 	config = ('-l eng --oem 1 --psm 3')
 
@@ -40,8 +44,3 @@ def img_to_text(img_path):
 	print(text)
 	return (text)
 	
-# just in case ---NEEDED
-# tesseract image.jpg stdout -l eng --oem 1 --psm 3
-# output to terminal
-# tesseract image.jpg output -l eng --oem 1 --psm 3
-# output to text file "output.txt"
