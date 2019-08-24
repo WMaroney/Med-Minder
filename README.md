@@ -39,6 +39,6 @@ This project uses the device camera to scan Rx label and automatically populate 
 ## To Run the Application
 - Clone or download repo to desktop
 - Open terminal and navigate to Med-Minder Folder
-- Install rqs.txt from the terminal (pip3 install -r rqs.txt)
-- Run python3 main.py
+- Install rqs.txt from the terminal "pip3 install -r rqs.txt"
+- Run "python3 main.py" in the terminal
 - Open Firefox/Chrome or any other internet Browser and Input "http://localhost:8080" to view the web application
