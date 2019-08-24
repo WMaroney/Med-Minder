@@ -34,4 +34,4 @@ This project uses the device camera to scan Rx label and automatically populate 
 		- ocr_simple.py (Object Character Recognition)
 		- README.md
 		- rqs.txt (requirements)
-		- calendar.py (NOT INCLUDED/FINISHED)
+		- calendar.py (INCLUDED BUT NOT FINISHED)
