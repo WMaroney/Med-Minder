@@ -36,7 +36,10 @@ This project uses the device camera to scan Rx label and automatically populate 
 		- rqs.txt (requirements)
 		- calendar.py (INCLUDED BUT NOT FINISHED)
 		
-## To Run the Application
+## To Run the Application while Hosted
+- Go to http://35.237.157.161:8080/ 
+
+## To Run the Application if not Hosted
 - Clone or download repo to desktop
 - Open terminal and navigate to Med-Minder Folder
 - Install rqs.txt from the terminal "pip3 install -r rqs.txt"
